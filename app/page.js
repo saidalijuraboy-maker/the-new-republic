@@ -55,7 +55,7 @@ export default function Home() {
             Its citizens will shape its cities, identity and future.
           </p>
           <div className="flex flex-wrap gap-4 mt-10">
-            <a href="#join" className="bg-yellow-500 text-[#07111f] px-8 py-4 font-bold text-sm flex items-center gap-3">
+            <a href="/register" className="bg-yellow-500 text-[#07111f] px-8 py-4 font-bold text-sm flex items-center gap-3">
               BECOME A CITIZEN <ArrowRight size={18}/>
             </a>
             <a href="#about" className="border border-white/30 px-8 py-4 text-sm">
