@@ -60,7 +60,15 @@ export default function RegisterPage() {
           throw new Error("Неправильный формат Username.");
         }
 
-        throw new Error("Не удалось зарегистрироваться. Попробуй ещё раз.");
+        throw new Error(
+  [
+    data.message,
+    data.details,
+    data.hint,
+    data.code
+  ].filter(Boolean).join(" | ") ||
+  "Не удалось зарегистрироваться."
+);
       }
 
       setCitizen(data[0]);
