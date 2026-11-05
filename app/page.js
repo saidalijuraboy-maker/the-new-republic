@@ -124,7 +124,7 @@ export default function Home() {
         <p className="text-gray-400 mt-5">
           One million citizens. One digital republic.
         </p>
-        <a href="https://www.tiktok.com/@cpm_s17"
+        <a href="https://www.tiktok.com/@thenewrepublic.world"
           target="_blank"
           rel="noreferrer"
           className="inline-block mt-9 bg-yellow-500 text-[#07111f] font-bold px-10 py-4">
