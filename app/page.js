@@ -1,141 +1,156 @@
-
 import {
-  Globe2, Shield, Landmark, Vote, Users,
-  ArrowRight, Menu, ChevronDown
+  Globe2, Landmark, Vote, Users, ArrowRight, UserPlus, IdCard, Home as HomeIcon
 } from "lucide-react";
+import LiveStats from "./components/LiveStats";
+
+const BUILDINGS = [
+  ["🏠", "Дом"], ["🏡", "Вилла"], ["🏪", "Магазин"], ["☕", "Кафе"],
+  ["🏦", "Банк"], ["🏢", "Небоскрёб"], ["🌾", "Ферма"], ["🌳", "Парк"]
+];
+
+const ROLES = [
+  ["👑", "Мэр", "Управляет городом и голосует за законы"],
+  ["🛍️", "Торговец", "Открывает магазины и кафе"],
+  ["🏦", "Банкир", "Хранит богатство республики"],
+  ["🌾", "Фермер", "Кормит весь город"],
+  ["🔨", "Строитель", "Строит новые районы"],
+  ["🛡️", "Полицейский", "Следит за порядком"]
+];
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#07111f] text-white">
-      <header className="flex items-center justify-between px-6 md:px-16 py-6 border-b border-white/10">
+      <header className="sticky top-0 z-50 backdrop-blur bg-[#07111f]/85 flex items-center justify-between px-6 md:px-16 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-full border border-yellow-500 flex items-center justify-center">
-            <Globe2 className="text-yellow-400" size={25}/>
+          <div className="h-10 w-10 rounded-full border border-yellow-500 flex items-center justify-center">
+            <Globe2 className="text-yellow-400" size={22} />
           </div>
           <div>
-            <h1 className="font-bold tracking-[3px] text-sm">
-              THE NEW REPUBLIC
-            </h1>
-            <p className="text-[9px] tracking-[4px] text-yellow-500">
-              UNITY • PROGRESS • FUTURE
-            </p>
+            <h1 className="font-bold tracking-[3px] text-sm">THE NEW REPUBLIC</h1>
+            <p className="text-[9px] tracking-[4px] text-yellow-500">UNITY • PROGRESS • FUTURE</p>
           </div>
         </div>
         <nav className="hidden md:flex gap-8 text-sm text-gray-300">
-          <a href="#about">About</a>
-          <a href="#citizens">Citizens</a>
-          <a href="#capital">Capital</a>
-          <a href="#vote">Voting</a>
+          <a href="#how">Как это работает</a>
+          <a href="/city">Город</a>
+          <a href="#roles">Роли</a>
+          <a href="#vote">Голосование</a>
         </nav>
-        <a href="#join" className="border border-yellow-500 px-5 py-3 text-xs tracking-widest">
-          JOIN US
+        <a href="/register" className="bg-yellow-500 text-[#07111f] font-bold px-5 py-3 text-xs tracking-widest rounded">
+          СТАТЬ ГРАЖДАНИНОМ
         </a>
       </header>
 
-      <section className="relative min-h-[650px] flex items-center px-6 md:px-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#07111f] via-[#07111f]/90 to-transparent z-10"/>
-        <div className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: "url(https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=2000)",
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
-        />
-        <div className="relative z-20 max-w-3xl py-24">
-          <p className="text-yellow-400 tracking-[6px] text-xs mb-8">
-            A NEW DIGITAL CIVILIZATION
-          </p>
+      <section className="relative min-h-[620px] flex items-center px-6 md:px-16 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,#1d4468_0%,#07111f_60%)]" />
+        <div className="absolute inset-0 opacity-[.07]" style={{
+          backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)",
+          backgroundSize: "46px 46px"
+        }} />
+        <div className="relative z-10 max-w-3xl py-24">
+          <p className="text-yellow-400 tracking-[6px] text-xs mb-8">ЦИФРОВАЯ ЦИВИЛИЗАЦИЯ</p>
           <h2 className="text-5xl md:text-7xl font-bold leading-tight">
-            ONE NATION.
-            <br/>
-            <span className="text-yellow-400">ONE FUTURE.</span>
+            1 ПОДПИСЧИК
+            <br />
+            <span className="text-yellow-400">= 1 ДОМ.</span>
           </h2>
           <p className="text-gray-300 text-lg mt-8 max-w-xl leading-8">
-            We are building a digital republic from zero.
-            Its citizens will shape its cities, identity and future.
+            Мы строим цифровую республику с нуля. Каждый гражданин получает паспорт,
+            собственный дом и роль в городе, где можно всё.
           </p>
           <div className="flex flex-wrap gap-4 mt-10">
-            <a href="/register" className="bg-yellow-500 text-[#07111f] px-8 py-4 font-bold text-sm flex items-center gap-3">
-              BECOME A CITIZEN <ArrowRight size={18}/>
+            <a href="/register" className="bg-yellow-500 text-[#07111f] px-8 py-4 font-bold text-sm flex items-center gap-3 rounded">
+              ПОЛУЧИТЬ ПАСПОРТ И ДОМ <ArrowRight size={18} />
             </a>
-            <a href="#about" className="border border-white/30 px-8 py-4 text-sm">
-              DISCOVER THE REPUBLIC
+            <a href="/city" className="border border-white/30 px-8 py-4 text-sm rounded">
+              СМОТРЕТЬ ГОРОД
             </a>
           </div>
         </div>
       </section>
 
-      <section id="citizens" className="grid grid-cols-2 md:grid-cols-4 gap-5 px-6 md:px-16 py-16 border-y border-white/10">
-        {[
-          ["01","DIGITAL REPUBLIC"],
-          ["∞","POSSIBILITIES"],
-          ["001","DAY OF BUILDING"],
-          ["1M","OUR FIRST GOAL"]
-        ].map(([n,t])=>(
-          <div key={t} className="text-center py-5">
-            <p className="text-4xl text-yellow-400 font-bold">{n}</p>
-            <p className="text-xs tracking-widest text-gray-400 mt-3">{t}</p>
-          </div>
-        ))}
+      <LiveStats />
+
+      <section id="how" className="px-6 md:px-16 py-24">
+        <p className="text-yellow-400 text-xs tracking-[5px]">КАК ЭТО РАБОТАЕТ</p>
+        <h2 className="text-3xl md:text-5xl font-bold mt-5">ТРИ ШАГА ДО СВОЕГО ДОМА</h2>
+        <div className="grid md:grid-cols-3 gap-5 mt-12">
+          {[
+            [UserPlus, "01", "Регистрация", "Введи свой TikTok-ник на странице регистрации."],
+            [IdCard, "02", "Паспорт", "Получи цифровой паспорт с номером гражданина и датой вступления."],
+            [HomeIcon, "03", "Дом", "Твой дом появляется в городе автоматически на свободном участке."]
+          ].map(([Icon, n, t, d]) => (
+            <div key={n} className="rounded-2xl border border-white/10 bg-[#0c1d31] p-7">
+              <div className="flex items-center justify-between">
+                <Icon className="text-yellow-400" size={30} />
+                <span className="text-4xl font-bold text-white/10">{n}</span>
+              </div>
+              <h3 className="text-xl font-bold mt-6">{t}</h3>
+              <p className="text-gray-400 mt-3 leading-7 text-sm">{d}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      <section id="about" className="px-6 md:px-16 py-24">
-        <p className="text-yellow-400 text-xs tracking-[5px]">OUR VISION</p>
-        <h2 className="text-4xl md:text-5xl font-bold mt-5">
-          BUILT BY THE PEOPLE.
-          <br/>SHAPED BY YOUR VOTE.
-        </h2>
-        <p className="text-gray-400 max-w-2xl mt-7 leading-8">
-          This is more than a website. It is a community project
-          where every participant can contribute ideas and help
-          shape a virtual nation.
+      <section className="px-6 md:px-16 py-20 bg-[#0b192a]">
+        <Landmark className="text-yellow-400" size={34} />
+        <h2 className="text-3xl md:text-5xl font-bold mt-6">ЖИВАЯ КАРТА ГОРОДА</h2>
+        <p className="text-gray-400 mt-4 max-w-xl leading-7">
+          Улицы, кварталы и тысячи домов. Найди свой дом по нику и посмотри, кто твои соседи.
         </p>
-      </section>
-
-      <section id="capital" className="px-6 md:px-16 py-20 bg-[#0b192a]">
-        <Landmark className="text-yellow-400" size={35}/>
-        <h2 className="text-4xl font-bold mt-6">THE CAPITAL</h2>
-        <p className="text-gray-400 mt-4 max-w-xl">
-          Our capital has no name yet. Its name will be chosen
-          by the citizens through a public vote.
-        </p>
-        <p className="text-yellow-400 mt-6 tracking-widest text-sm">
-          YOUR CITY. YOUR VOTE.
-        </p>
-      </section>
-
-      <section id="vote" className="px-6 md:px-16 py-24 text-center">
-        <Vote className="mx-auto text-yellow-400" size={42}/>
-        <h2 className="text-4xl font-bold mt-6">YOUR VOICE MATTERS</h2>
-        <p className="text-gray-400 mt-5">
-          The first mission is to build our community.
-          The citizens will decide what comes next.
-        </p>
-        <a href="#join" className="inline-block mt-8 border border-yellow-500 px-8 py-4 text-yellow-400">
-          EXPLORE THE REPUBLIC
+        <div className="flex flex-wrap gap-3 mt-8">
+          {BUILDINGS.map(([e, t]) => (
+            <span key={t} className="px-4 py-2 rounded-full border border-white/15 bg-white/5 text-sm">
+              {e} {t}
+            </span>
+          ))}
+        </div>
+        <a href="/city" className="inline-block mt-9 bg-yellow-500 text-[#07111f] font-bold px-9 py-4 rounded">
+          ОТКРЫТЬ КАРТУ →
         </a>
+      </section>
+
+      <section id="roles" className="px-6 md:px-16 py-24">
+        <p className="text-yellow-400 text-xs tracking-[5px]">РОЛИ</p>
+        <h2 className="text-3xl md:text-5xl font-bold mt-5">КЕМ ТЫ БУДЕШЬ В ГОРОДЕ?</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-12">
+          {ROLES.map(([e, t, d]) => (
+            <div key={t} className="rounded-2xl border border-white/10 bg-[#0c1d31] p-5">
+              <div className="text-3xl">{e}</div>
+              <h3 className="font-bold mt-4">{t}</h3>
+              <p className="text-gray-400 text-xs mt-2 leading-5">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="vote" className="px-6 md:px-16 py-24 text-center bg-[#0b192a]">
+        <Vote className="mx-auto text-yellow-400" size={42} />
+        <h2 className="text-3xl md:text-5xl font-bold mt-6">ТВОЙ ГОЛОС ВАЖЕН</h2>
+        <p className="text-gray-400 mt-5 max-w-lg mx-auto leading-7">
+          Название столицы, мэр и законы республики будут выбраны голосованием граждан.
+        </p>
       </section>
 
       <section id="join" className="px-6 md:px-16 py-24 bg-[#101f32] text-center">
-        <Users className="mx-auto text-yellow-400" size={45}/>
-        <h2 className="text-4xl md:text-5xl font-bold mt-7">
-          BECOME PART OF HISTORY
-        </h2>
-        <p className="text-gray-400 mt-5">
-          One million citizens. One digital republic.
-        </p>
-        <a href="https://www.tiktok.com/@thenewrepublic.world"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-block mt-9 bg-yellow-500 text-[#07111f] font-bold px-10 py-4">
-          JOIN OUR COMMUNITY
-        </a>
+        <Users className="mx-auto text-yellow-400" size={45} />
+        <h2 className="text-3xl md:text-5xl font-bold mt-7">СТАНЬ ЧАСТЬЮ ИСТОРИИ</h2>
+        <p className="text-gray-400 mt-5">Миллион граждан. Одна цифровая республика.</p>
+        <div className="flex flex-wrap justify-center gap-4 mt-9">
+          <a href="/register" className="bg-yellow-500 text-[#07111f] font-bold px-10 py-4 rounded">
+            ПОЛУЧИТЬ ПАСПОРТ
+          </a>
+          <a href="https://www.tiktok.com/@thenewrepublic.world" target="_blank" rel="noreferrer"
+            className="border border-white/30 px-10 py-4 rounded">
+            НАШ TIKTOK
+          </a>
+        </div>
       </section>
 
       <footer className="px-6 md:px-16 py-9 border-t border-white/10 flex flex-wrap justify-between gap-5 text-xs text-gray-500">
         <span>© 2026 THE NEW REPUBLIC</span>
         <span>UNITY • PROGRESS • FUTURE</span>
-        <span> A DIGITAL COMMUNITY PROJECT </span>
+        <span>ЦИФРОВОЙ СООБЩЕСТВЕННЫЙ ПРОЕКТ</span>
       </footer>
     </main>
   );
