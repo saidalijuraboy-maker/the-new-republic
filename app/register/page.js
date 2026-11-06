@@ -1,11 +1,12 @@
-
 "use client";
 
 import { useState } from "react";
+import { rpc, TYPES, ROLES } from "../lib/rpc";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [citizen, setCitizen] = useState(null);
+  const [house, setHouse] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -13,6 +14,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setCitizen(null);
+    setHouse(null);
 
     const clean = username.trim().replace(/^@/, "").toLowerCase();
 
@@ -61,23 +63,30 @@ export default function RegisterPage() {
         }
 
         throw new Error(
-  [
-    data.message,
-    data.details,
-    data.hint,
-    data.code
-  ].filter(Boolean).join(" | ") ||
-  "Не удалось зарегистрироваться."
-);
+          [
+            data.message,
+            data.details,
+            data.hint,
+            data.code
+          ].filter(Boolean).join(" | ") ||
+          "Не удалось зарегистрироваться."
+        );
       }
 
       setCitizen(data[0]);
+
+      try {
+        const h = await rpc("get_house", { p_citizen_id: data[0].citizen_id });
+        if (h && h[0]) setHouse(h[0]);
+      } catch (_) {}
     } catch (err) {
       setError(err.message || "Произошла ошибка.");
     } finally {
       setLoading(false);
     }
   }
+
+  const type = house ? TYPES[house.house_type] || TYPES.house : null;
 
   return (
     <main className="register-page">
@@ -132,12 +141,30 @@ export default function RegisterPage() {
                 {new Date(citizen.joined_at).toLocaleDateString("ru-RU")}
               </strong>
             </div>
+            {house && (
+              <>
+                <div className="passport-line">
+                  <span>YOUR HOUSE</span>
+                  <strong>{type[0]} {type[1]}</strong>
+                </div>
+                <div className="passport-line">
+                  <span>ROLE</span>
+                  <strong>{ROLES[house.role] || house.role}</strong>
+                </div>
+              </>
+            )}
             <div className="passport-bottom">
               UNITY • PROGRESS • FUTURE
             </div>
             <p className="success">
               WELCOME, CITIZEN!
             </p>
+            <a
+              className="house-link"
+              href={`/city#${citizen.tiktok_username.replace("@", "")}`}
+            >
+              🏠 ПОСМОТРЕТЬ МОЙ ДОМ →
+            </a>
           </div>
         )}
 
@@ -212,6 +239,12 @@ export default function RegisterPage() {
         .passport-line strong { display: block; margin-top: 5px; }
         .passport-bottom { margin-top: 20px; }
         .success { color: #e5c77d; font-weight: bold; margin-bottom: 0; }
+        .house-link {
+          display: block; margin-top: 18px; padding: 14px;
+          background: linear-gradient(110deg, #b58b3c, #f0d38a);
+          color: #07111f; font-weight: bold; font-size: 12px;
+          letter-spacing: 1px; border-radius: 8px; text-decoration: none;
+        }
         .back { display: inline-block; color: #d6ad50; margin-top: 25px; font-size: 12px; }
         .disclaimer { color: #74869a; font-size: 10px; line-height: 1.6; margin-top: 25px; }
       `}</style>
