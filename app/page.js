@@ -3,6 +3,7 @@
 import { Globe2, Landmark, Vote, Users, ArrowRight, UserPlus, IdCard, Home as HomeIcon } from 'lucide-react';
 import LiveStats from './components/LiveStats';
 import LangSwitch from './components/LangSwitch';
+import CitizenPoll from './components/CitizenPoll';
 import { useLang, TIKTOK_URL, INSTAGRAM_URL } from './lib/i18n';
 import { TYPE_EMOJI } from './lib/rpc';
 
@@ -129,6 +130,7 @@ export default function Home() {
         <Vote className='mx-auto text-yellow-400' size={42} />
         <h2 className='text-3xl md:text-5xl font-bold mt-6'>{t('vote.title')}</h2>
         <p className='text-gray-400 mt-5 max-w-lg mx-auto leading-7'>{t('vote.desc')}</p>
+        <CitizenPoll />
       </section>
 
       <section id='join' className='px-6 md:px-16 py-24 bg-[#101f32] text-center'>
