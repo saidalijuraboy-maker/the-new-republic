@@ -9,7 +9,7 @@ const URLS = { tiktok: TIKTOK_URL, instagram: INSTAGRAM_URL };
 const PATTERN = { tiktok: /^[a-z0-9._]{2,24}$/, instagram: /^[a-z0-9._]{2,30}$/ };
 
 export default function RegisterPage() {
-  const { t, date } = useLang();
+  const { t, date, lang } = useLang();
   const [platform, setPlatform] = useState('tiktok');
   const [username, setUsername] = useState('');
   const [citizen, setCitizen] = useState(null);
@@ -19,6 +19,20 @@ export default function RegisterPage() {
   const [opened, setOpened] = useState(false);
   const [openedAt, setOpenedAt] = useState(0);
   const [agreed, setAgreed] = useState(false);
+
+  const registrationRules = lang === 'ru'
+    ? [
+        'Любой желающий может подать заявку на получение цифрового гражданства.',
+        'Для регистрации необходимо указать действительное имя пользователя в социальной сети.',
+        'Каждый человек может иметь только одну учётную запись гражданина.',
+        'Регистрация осуществляется после одобрения администрации.'
+      ]
+    : [
+        'Anyone can apply to become a digital citizen.',
+        'Registration must use a valid social media username.',
+        'Each person may have only one citizen account.',
+        'Registration is subject to approval.'
+      ];
 
   function pick(p) {
     setPlatform(p);
@@ -108,49 +122,63 @@ export default function RegisterPage() {
         <p className='subtitle'>{t('reg.sub')}</p>
 
         {!citizen ? (
-          <form onSubmit={register}>
-            <label className='lbl'>{t('reg.platform')}</label>
-            <div className='tabs'>
-              <button type='button' className={platform === 'tiktok' ? 'tab on' : 'tab'} onClick={() => pick('tiktok')}>
-                🎵 TikTok
+          <>
+            <section className='registration-rules' aria-labelledby='registration-rules-title'>
+              <h2 id='registration-rules-title'>{lang === 'ru' ? 'ПРАВИЛА РЕГИСТРАЦИИ' : 'REGISTRATION RULES'}</h2>
+              <ol>
+                {registrationRules.map((rule, index) => (
+                  <li key={index}>
+                    <span className='rule-number'>{index + 1}.</span>
+                    <span>{rule}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <form onSubmit={register}>
+              <label className='lbl'>{t('reg.platform')}</label>
+              <div className='tabs'>
+                <button type='button' className={platform === 'tiktok' ? 'tab on' : 'tab'} onClick={() => pick('tiktok')}>
+                  🎵 TikTok
+                </button>
+                <button type='button' className={platform === 'instagram' ? 'tab on' : 'tab'} onClick={() => pick('instagram')}>
+                  📸 Instagram
+                </button>
+              </div>
+
+              <div className='gate'>
+                <div className='gate-title'>{t('follow.title.' + platform)}</div>
+                <p className='gate-desc'>{t('follow.desc')}</p>
+                <button type='button' className={platform === 'instagram' ? 'sn ig' : 'sn'} onClick={openSocial}>
+                  {t('follow.btn.' + platform)} →
+                </button>
+                {opened && <p className='gate-note'>{t('follow.opened')}</p>}
+                <label className={opened ? 'check' : 'check off'}>
+                  <input type='checkbox' checked={agreed} disabled={!opened} onChange={(e) => setAgreed(e.target.checked)} />
+                  <span>{t('follow.check.' + platform)}</span>
+                </label>
+              </div>
+
+              <label className='lbl'>{t('reg.label.' + platform)}</label>
+              <div className='username-input'>
+                <span>@</span>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder='your_username'
+                  maxLength={31}
+                  required
+                />
+              </div>
+              <p className='hint'>{t('reg.hint.' + platform)}</p>
+
+              {error && <div className='error'>{error}</div>}
+
+              <button className='go' disabled={loading}>
+                {loading ? t('reg.loading') : t('reg.btn')}
               </button>
-              <button type='button' className={platform === 'instagram' ? 'tab on' : 'tab'} onClick={() => pick('instagram')}>
-                📸 Instagram
-              </button>
-            </div>
-
-            <div className='gate'>
-              <div className='gate-title'>{t('follow.title.' + platform)}</div>
-              <p className='gate-desc'>{t('follow.desc')}</p>
-              <button type='button' className={platform === 'instagram' ? 'sn ig' : 'sn'} onClick={openSocial}>
-                {t('follow.btn.' + platform)} →
-              </button>
-              {opened && <p className='gate-note'>{t('follow.opened')}</p>}
-              <label className={opened ? 'check' : 'check off'}>
-                <input type='checkbox' checked={agreed} disabled={!opened} onChange={(e) => setAgreed(e.target.checked)} />
-                <span>{t('follow.check.' + platform)}</span>
-              </label>
-            </div>
-
-            <label className='lbl'>{t('reg.label.' + platform)}</label>
-            <div className='username-input'>
-              <span>@</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder='your_username'
-                maxLength={31}
-                required
-              />
-            </div>
-            <p className='hint'>{t('reg.hint.' + platform)}</p>
-
-            {error && <div className='error'>{error}</div>}
-
-            <button className='go' disabled={loading}>
-              {loading ? t('reg.loading') : t('reg.btn')}
-            </button>
-          </form>
+            </form>
+          </>
         ) : (
           <div className='passport'>
             <div className='passport-top'>{t('pass.top')}</div>
@@ -221,6 +249,24 @@ export default function RegisterPage() {
         .eyebrow { color: #d6ad50; letter-spacing: 4px; font-size: 12px; }
         h1 { font-size: 27px; margin: 18px 0 10px; }
         .subtitle { color: #aab8c8; font-size: 13px; margin-bottom: 26px; }
+        .registration-rules {
+          text-align: left;
+          border: 1px solid rgba(214, 173, 80, .65);
+          border-radius: 12px;
+          padding: 16px;
+          margin: 0 0 24px;
+          background: rgba(7, 17, 31, .72);
+        }
+        .registration-rules h2 {
+          color: #f0d38a;
+          font-size: 12px;
+          font-weight: bold;
+          letter-spacing: 1.5px;
+          margin: 0 0 13px;
+        }
+        .registration-rules ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 11px; }
+        .registration-rules li { display: flex; align-items: flex-start; gap: 9px; color: #d5deea; font-size: 12px; line-height: 1.55; }
+        .rule-number { flex: 0 0 auto; color: #e4c16d; font-weight: bold; }
         form { text-align: left; }
         .tabs { display: flex; gap: 10px; margin: 10px 0 18px; }
         .tab {
