@@ -35,6 +35,7 @@ export default function Home() {
           <a href='/city'>{t('nav.city')}</a>
           <a href='#roles'>{t('nav.roles')}</a>
           <a href='/city'>{t('nav.vote')}</a>
+          <a href='/rules'>{t('nav.rules')}</a>
         </nav>
         <div className='flex items-center gap-3'>
           <LangSwitch />
@@ -145,6 +146,7 @@ export default function Home() {
       <footer className='px-6 md:px-16 py-9 border-t border-white/10 flex flex-wrap justify-between gap-5 text-xs text-gray-500'>
         <span>© 2026 THE NEW REPUBLIC</span>
         <span>UNITY • PROGRESS • FUTURE</span>
+        <a href='/rules' className='hover:text-yellow-400'>{t('nav.rules')}</a>
         <span>{t('footer.3')}</span>
       </footer>
     </main>
