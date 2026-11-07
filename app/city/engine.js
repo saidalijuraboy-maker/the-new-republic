@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const CELL = 5;
+const CELL = 7;
 const ROAD = 4;
 const BLOCK = 5;
 const COLS = 40;
@@ -777,6 +777,8 @@ export function createCity(container, { onPick } = {}) {
         arr.forEach((h, i) => {
           pv.set(hx(h), BASE, hz(h));
           q.setFromAxisAngle(up, Math.floor(hash(h.plot_x, h.plot_y) * 4) * (Math.PI / 2));
+          const houseScale = 1.08 + ((h.style || 0) % 4) * 0.07;
+          sc1.setScalar(houseScale);
           mm.compose(pv, q, sc1);
           mesh.setMatrixAt(i, mm);
           const hex = Array.isArray(colDef) ? colDef[(h.style || 0) % colDef.length] : colDef;
