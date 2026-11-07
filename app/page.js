@@ -34,7 +34,7 @@ export default function Home() {
           <a href='#how'>{t('nav.how')}</a>
           <a href='/city'>{t('nav.city')}</a>
           <a href='#roles'>{t('nav.roles')}</a>
-          <a href='#vote'>{t('nav.vote')}</a>
+          <a href='/city'>{t('nav.vote')}</a>
         </nav>
         <div className='flex items-center gap-3'>
           <LangSwitch />
@@ -123,12 +123,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
-
-      <section id='vote' className='px-6 md:px-16 py-24 text-center bg-[#0b192a]'>
-        <Vote className='mx-auto text-yellow-400' size={42} />
-        <h2 className='text-3xl md:text-5xl font-bold mt-6'>{t('vote.title')}</h2>
-        <p className='text-gray-400 mt-5 max-w-lg mx-auto leading-7'>{t('vote.desc')}</p>
       </section>
 
       <section id='join' className='px-6 md:px-16 py-24 bg-[#101f32] text-center'>
