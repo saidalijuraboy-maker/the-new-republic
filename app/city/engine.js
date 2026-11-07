@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const CELL = 7;
+const CELL = 5;
 const ROAD = 4;
 const BLOCK = 5;
 const COLS = 40;
@@ -11,8 +11,12 @@ const BASE = 0.1; // top of lawns
 
 const pos = (i) => ROAD + Math.floor(i / BLOCK) * BLOCK_W + (i % BLOCK) * CELL;
 const blocksFor = (rows) => Math.ceil(rows / BLOCK);
-const hx = (h) => pos(h.plot_x) + CELL / 2;
-const hz = (h) => pos(h.plot_y) + CELL / 2;
+const lotCenter = (i) => {
+  const blockStart = ROAD + Math.floor(i / BLOCK) * BLOCK_W;
+  return blockStart + ((i % BLOCK) < 2 ? CELL : 4 * CELL);
+};
+const hx = (h) => lotCenter(h.plot_x);
+const hz = (h) => lotCenter(h.plot_y);
 
 /* ---------- noise ---------- */
 function smooth(a, b, x) {
@@ -639,9 +643,15 @@ export function createCity(container, { onPick } = {}) {
     const occupied = new Set();
     for (const h of list) {
       if (h.plot_y > maxY) maxY = h.plot_y;
-      occupied.add(h.plot_x + ',' + h.plot_y);
+      const bx = Math.floor(h.plot_x / BLOCK) * BLOCK;
+      const bz = Math.floor(h.plot_y / BLOCK) * BLOCK;
+      const x0 = bx + ((h.plot_x % BLOCK) < 2 ? 0 : 3);
+      const z0 = bz + ((h.plot_y % BLOCK) < 2 ? 0 : 3);
+      for (let dy = 0; dy < 2; dy++) {
+        for (let dx = 0; dx < 2; dx++) occupied.add((x0 + dx) + ',' + (z0 + dy));
+      }
     }
-    const rows = Math.max(10, maxY + 6);
+    const rows = Math.max(BLOCK * 2, maxY + 2);
     const blocksY = blocksFor(rows);
     const Hs = blocksY * BLOCK_W + ROAD;
     const mm = new THREE.Matrix4();
@@ -677,15 +687,24 @@ export function createCity(container, { onPick } = {}) {
     g.add(slabs);
 
     /* lawns */
-    const lawns = new THREE.InstancedMesh(new THREE.BoxGeometry(CELL - 0.4, 0.06, CELL - 0.4), baseMat, COLS * rows);
+    const blocksX = COLS / BLOCK;
+    const lawnCount = blocksX * blocksY * 4;
+    const lotSize = CELL * 2 - 0.35;
+    const lawns = new THREE.InstancedMesh(new THREE.BoxGeometry(lotSize, 0.06, lotSize), baseMat, lawnCount);
     let li = 0;
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < COLS; x++) {
-        mm.makeTranslation(pos(x) + CELL / 2, BASE - 0.03, pos(y) + CELL / 2);
-        lawns.setMatrixAt(li, mm);
-        cc.set(occupied.has(x + ',' + y) ? '#5fa24b' : '#68ad52').offsetHSL(0, 0, (hash(x, y) - 0.5) * 0.06);
-        lawns.setColorAt(li, cc);
-        li++;
+    for (let bx = 0; bx < blocksX; bx++) {
+      for (let bz = 0; bz < blocksY; bz++) {
+        for (const ox of [CELL, CELL * 4]) {
+          for (const oz of [CELL, CELL * 4]) {
+            const x = ROAD + bx * BLOCK_W + ox;
+            const z = ROAD + bz * BLOCK_W + oz;
+            mm.makeTranslation(x, BASE - 0.03, z);
+            lawns.setMatrixAt(li, mm);
+            cc.set('#5fa24b').offsetHSL(0, 0, (hash(bx * 7 + ox, bz * 7 + oz) - 0.5) * 0.06);
+            lawns.setColorAt(li, cc);
+            li++;
+          }
+        }
       }
     }
     lawns.receiveShadow = true;
@@ -777,7 +796,7 @@ export function createCity(container, { onPick } = {}) {
         arr.forEach((h, i) => {
           pv.set(hx(h), BASE, hz(h));
           q.setFromAxisAngle(up, Math.floor(hash(h.plot_x, h.plot_y) * 4) * (Math.PI / 2));
-          const houseScale = 1.08 + ((h.style || 0) % 4) * 0.07;
+          const houseScale = 1.90 + ((h.style || 0) % 4) * 0.03;
           sc1.setScalar(houseScale);
           mm.compose(pv, q, sc1);
           mesh.setMatrixAt(i, mm);
