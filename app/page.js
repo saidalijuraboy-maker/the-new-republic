@@ -3,7 +3,7 @@
 import { Globe2, Landmark, Vote, Users, ArrowRight, UserPlus, IdCard, Home as HomeIcon } from 'lucide-react';
 import LiveStats from './components/LiveStats';
 import LangSwitch from './components/LangSwitch';
-import { useLang, TIKTOK_URL } from './lib/i18n';
+import { useLang, TIKTOK_URL, INSTAGRAM_URL } from './lib/i18n';
 import { TYPE_EMOJI } from './lib/rpc';
 
 const ROLE_LIST = [
@@ -139,8 +139,11 @@ export default function Home() {
           <a href='/register' className='bg-yellow-500 text-[#07111f] font-bold px-10 py-4 rounded'>
             {t('join.cta')}
           </a>
-          <a href={TIKTOK_URL} target='_blank' rel='noreferrer' className='border border-white/30 px-10 py-4 rounded'>
-            {t('join.tt')}
+          <a href={TIKTOK_URL} target='_blank' rel='noreferrer' className='border border-white/30 px-8 py-4 rounded'>
+            🎵 {t('join.tt')}
+          </a>
+          <a href={INSTAGRAM_URL} target='_blank' rel='noreferrer' className='border border-white/30 px-8 py-4 rounded'>
+            📸 {t('join.ig')}
           </a>
         </div>
       </section>
