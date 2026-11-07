@@ -34,7 +34,7 @@ export default function Home() {
           <a href='#how'>{t('nav.how')}</a>
           <a href='/city'>{t('nav.city')}</a>
           <a href='#roles'>{t('nav.roles')}</a>
-          <a href='#vote'>{t('nav.vote')}</a>
+          <a href='/city'>{t('nav.vote')}</a>
         </nav>
         <div className='flex items-center gap-3'>
           <LangSwitch />
