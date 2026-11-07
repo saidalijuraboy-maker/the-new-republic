@@ -5,6 +5,10 @@ import { rpc, TYPE_EMOJI } from '../lib/rpc';
 import { useLang } from '../lib/i18n';
 import LangSwitch from '../components/LangSwitch';
 
+const nameOf = (h) => h.tiktok_username.replace('@', '');
+const plat = (h) => h.platform || 'tiktok';
+const hashOf = (h) => (plat(h) === 'instagram' ? 'ig:' : '') + nameOf(h);
+
 export default function CityPage() {
   const { t, lang, date } = useLang();
   const hostRef = useRef(null);
@@ -30,7 +34,7 @@ export default function CityPage() {
         const eng = createCity(hostRef.current, {
           onPick: (h) => {
             setSelected(h);
-            if (h) history.replaceState(null, '', '#' + h.tiktok_username.replace('@', ''));
+            if (h) history.replaceState(null, '', '#' + hashOf(h));
           }
         });
         engineRef.current = eng;
@@ -46,11 +50,15 @@ export default function CityPage() {
 
             if (first) {
               first = false;
-              const tag = decodeURIComponent((window.location.hash || '').replace('#', ''))
-                .replace('@', '')
-                .toLowerCase();
+              let tag = decodeURIComponent((window.location.hash || '').replace('#', '')).toLowerCase();
+              let wanted = 'tiktok';
+              if (tag.startsWith('ig:')) {
+                wanted = 'instagram';
+                tag = tag.slice(3);
+              }
+              tag = tag.replace('@', '');
               if (tag) {
-                const found = list.find((x) => x.tiktok_username.replace('@', '') === tag);
+                const found = list.find((x) => nameOf(x) === tag && plat(x) === wanted) || list.find((x) => nameOf(x) === tag);
                 if (found) {
                   eng.select(found);
                   eng.flyTo(found);
@@ -82,7 +90,7 @@ export default function CityPage() {
     e.preventDefault();
     const q = query.trim().replace(/^@/, '').toLowerCase();
     if (!q) return;
-    const found = listRef.current.find((x) => x.tiktok_username.replace('@', '') === q);
+    const found = listRef.current.find((x) => nameOf(x) === q);
     if (!found) {
       setNotFound(true);
       return;
@@ -158,7 +166,9 @@ export default function CityPage() {
               <div className='text-4xl'>{emoji}</div>
               <div className='min-w-0 flex-1'>
                 <p className='font-bold truncate'>{selected.tiktok_username}</p>
-                <p className='text-xs text-yellow-400 tracking-widest'>{selected.citizen_id}</p>
+                <p className='text-xs text-yellow-400 tracking-widest'>
+                  {selected.citizen_id} · {plat(selected) === 'instagram' ? '📸' : '🎵'} {t('plat.' + plat(selected))}
+                </p>
               </div>
               <button
                 onClick={() => {

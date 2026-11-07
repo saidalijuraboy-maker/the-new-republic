@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { rpc, TYPE_EMOJI } from '../lib/rpc';
-import { useLang, TIKTOK_URL } from '../lib/i18n';
+import { useLang, TIKTOK_URL, INSTAGRAM_URL } from '../lib/i18n';
 import LangSwitch from '../components/LangSwitch';
+
+const URLS = { tiktok: TIKTOK_URL, instagram: INSTAGRAM_URL };
+const PATTERN = { tiktok: /^[a-z0-9._]{2,24}$/, instagram: /^[a-z0-9._]{2,30}$/ };
 
 export default function RegisterPage() {
   const { t, date } = useLang();
+  const [platform, setPlatform] = useState('tiktok');
   const [username, setUsername] = useState('');
   const [citizen, setCitizen] = useState(null);
   const [house, setHouse] = useState(null);
@@ -16,8 +20,16 @@ export default function RegisterPage() {
   const [openedAt, setOpenedAt] = useState(0);
   const [agreed, setAgreed] = useState(false);
 
-  function openTikTok() {
-    window.open(TIKTOK_URL, '_blank', 'noopener');
+  function pick(p) {
+    setPlatform(p);
+    setOpened(false);
+    setOpenedAt(0);
+    setAgreed(false);
+    setError('');
+  }
+
+  function openSocial() {
+    window.open(URLS[platform], '_blank', 'noopener');
     setOpened(true);
     setOpenedAt(Date.now());
     setError('');
@@ -37,7 +49,7 @@ export default function RegisterPage() {
     }
 
     const clean = username.trim().replace(/^@/, '').toLowerCase();
-    if (!/^[a-z0-9._]{2,24}$/.test(clean)) {
+    if (!PATTERN[platform].test(clean)) {
       setError(t('err.format'));
       return;
     }
@@ -51,21 +63,21 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${url}/rest/v1/rpc/register_citizen`, {
+      const response = await fetch(`${url}/rest/v1/rpc/register_citizen_v2`, {
         method: 'POST',
         headers: {
           apikey: key,
           Authorization: `Bearer ${key}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ p_tiktok_username: clean })
+        body: JSON.stringify({ p_username: clean, p_platform: platform })
       });
       const data = await response.json();
 
       if (!response.ok) {
         const message = data.message || '';
         if (message.includes('USERNAME_ALREADY_REGISTERED')) throw new Error(t('err.taken'));
-        if (message.includes('INVALID_TIKTOK_USERNAME')) throw new Error(t('err.invalid'));
+        if (message.includes('INVALID_USERNAME')) throw new Error(t('err.invalid'));
         throw new Error(t('err.generic'));
       }
 
@@ -81,6 +93,9 @@ export default function RegisterPage() {
     }
   }
 
+  const cPlatform = citizen ? citizen.platform || platform : platform;
+  const hash = citizen ? (cPlatform === 'instagram' ? 'ig:' : '') + citizen.tiktok_username.replace('@', '') : '';
+
   return (
     <main className='register-page'>
       <div className='lang'>
@@ -94,36 +109,41 @@ export default function RegisterPage() {
 
         {!citizen ? (
           <form onSubmit={register}>
+            <label className='lbl'>{t('reg.platform')}</label>
+            <div className='tabs'>
+              <button type='button' className={platform === 'tiktok' ? 'tab on' : 'tab'} onClick={() => pick('tiktok')}>
+                🎵 TikTok
+              </button>
+              <button type='button' className={platform === 'instagram' ? 'tab on' : 'tab'} onClick={() => pick('instagram')}>
+                📸 Instagram
+              </button>
+            </div>
+
             <div className='gate'>
-              <div className='gate-title'>🎵 {t('follow.title')}</div>
+              <div className='gate-title'>{t('follow.title.' + platform)}</div>
               <p className='gate-desc'>{t('follow.desc')}</p>
-              <button type='button' className='tt' onClick={openTikTok}>
-                {t('follow.btn')} →
+              <button type='button' className={platform === 'instagram' ? 'sn ig' : 'sn'} onClick={openSocial}>
+                {t('follow.btn.' + platform)} →
               </button>
               {opened && <p className='gate-note'>{t('follow.opened')}</p>}
               <label className={opened ? 'check' : 'check off'}>
-                <input
-                  type='checkbox'
-                  checked={agreed}
-                  disabled={!opened}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                />
-                <span>{t('follow.check')}</span>
+                <input type='checkbox' checked={agreed} disabled={!opened} onChange={(e) => setAgreed(e.target.checked)} />
+                <span>{t('follow.check.' + platform)}</span>
               </label>
             </div>
 
-            <label className='lbl'>{t('reg.label')}</label>
+            <label className='lbl'>{t('reg.label.' + platform)}</label>
             <div className='username-input'>
               <span>@</span>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder='your_username'
-                maxLength={25}
+                maxLength={31}
                 required
               />
             </div>
-            <p className='hint'>{t('reg.hint')}</p>
+            <p className='hint'>{t('reg.hint.' + platform)}</p>
 
             {error && <div className='error'>{error}</div>}
 
@@ -137,7 +157,7 @@ export default function RegisterPage() {
             <div className='flag'>🌐</div>
             <h2>THE NEW REPUBLIC</h2>
             <div className='passport-line'>
-              <span>{t('pass.user')}</span>
+              <span>{t('pass.user.' + cPlatform)}</span>
               <strong>{citizen.tiktok_username}</strong>
             </div>
             <div className='passport-line'>
@@ -164,7 +184,7 @@ export default function RegisterPage() {
             )}
             <div className='passport-bottom'>UNITY • PROGRESS • FUTURE</div>
             <p className='success'>{t('pass.welcome')}</p>
-            <a className='house-link' href={`/city#${citizen.tiktok_username.replace('@', '')}`}>
+            <a className='house-link' href={`/city#${hash}`}>
               {t('pass.view')}
             </a>
           </div>
@@ -202,6 +222,13 @@ export default function RegisterPage() {
         h1 { font-size: 27px; margin: 18px 0 10px; }
         .subtitle { color: #aab8c8; font-size: 13px; margin-bottom: 26px; }
         form { text-align: left; }
+        .tabs { display: flex; gap: 10px; margin: 10px 0 18px; }
+        .tab {
+          flex: 1; padding: 13px; border-radius: 10px;
+          background: #07111f; border: 1px solid #53677d;
+          color: #aab8c8; font-weight: bold; font-size: 14px; cursor: pointer;
+        }
+        .tab.on { border-color: #d6ad50; color: #fff; background: #13243a; }
         .gate {
           border: 1px solid #d6ad50;
           border-radius: 12px;
@@ -212,11 +239,12 @@ export default function RegisterPage() {
         .gate-title { color: #f0d38a; font-weight: bold; font-size: 15px; }
         .gate-desc { color: #aab8c8; font-size: 12px; line-height: 1.6; margin: 8px 0 0; }
         .gate-note { color: #e5c77d; font-size: 12px; margin: 10px 0 0; }
-        .tt {
+        .sn {
           width: 100%; padding: 14px; margin-top: 14px;
           background: #111; border: 1px solid #fff; border-radius: 8px;
           color: #fff; font-weight: bold; letter-spacing: 1px; cursor: pointer; font-size: 12px;
         }
+        .sn.ig { background: linear-gradient(45deg, #f09433, #dc2743 55%, #bc1888); border-color: #fff; }
         .check { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 12px; color: #fff; cursor: pointer; }
         .check.off { opacity: .45; cursor: not-allowed; }
         .check input { width: 18px; height: 18px; padding: 0; margin: 0; accent-color: #d6ad50; }
