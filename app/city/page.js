@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { rpc, TYPE_EMOJI } from '../lib/rpc';
 import { useLang } from '../lib/i18n';
 import LangSwitch from '../components/LangSwitch';
+import CitizenPoll from '../components/CitizenPoll';
+import { Vote, X } from 'lucide-react';
 
 const nameOf = (h) => h.tiktok_username.replace('@', '');
 const plat = (h) => h.platform || 'tiktok';
@@ -20,6 +22,7 @@ export default function CityPage() {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState('');
   const [notFound, setNotFound] = useState(false);
+  const [showPoll, setShowPoll] = useState(false);
 
   useEffect(() => {
     let disposed = false;
@@ -146,6 +149,36 @@ export default function CityPage() {
         {status === 'webgl' && (
           <div className='absolute inset-0 flex items-center justify-center text-yellow-200 text-sm px-8 text-center bg-[#07111f]'>
             {t('city.webgl')}
+          </div>
+        )}
+
+        <button
+          type='button'
+          onClick={() => setShowPoll(true)}
+          className='absolute left-3 top-3 z-20 flex items-center gap-2 rounded-xl border border-yellow-400/60 bg-[#0c1d31]/95 px-4 py-3 text-sm font-bold text-yellow-300 shadow-xl'
+        >
+          <Vote size={18} /> {lang === 'ru' ? 'Голосование' : 'Vote'}
+        </button>
+
+        {showPoll && (
+          <div className='absolute inset-0 z-30 overflow-y-auto bg-[#07111f]/95 px-3 py-5 backdrop-blur-sm'>
+            <div className='mx-auto max-w-3xl'>
+              <div className='mb-4 flex items-center justify-between'>
+                <div>
+                  <p className='text-xs tracking-[4px] text-yellow-400'>THE NEW REPUBLIC</p>
+                  <h2 className='mt-1 text-2xl font-bold'>{lang === 'ru' ? 'Голосование граждан' : 'Citizens’ Vote'}</h2>
+                </div>
+                <button
+                  type='button'
+                  onClick={() => setShowPoll(false)}
+                  aria-label={lang === 'ru' ? 'Закрыть голосование' : 'Close poll'}
+                  className='rounded-lg border border-white/15 bg-white/5 p-2 text-gray-300'
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              <CitizenPoll />
+            </div>
           </div>
         )}
 
