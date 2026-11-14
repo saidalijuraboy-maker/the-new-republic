@@ -340,6 +340,109 @@ function makeParts() {
   };
 }
 
+
+/* ---------- citizen landmark ---------- */
+function addAmusementPark(group, x, z) {
+  const park = new THREE.Group();
+  park.name = 'citizen-amusement-park';
+  park.position.set(x, BASE, z);
+
+  const mat = (color, roughness = 0.72, metalness = 0) =>
+    new THREE.MeshStandardMaterial({ color, roughness, metalness });
+  const pavingMat = mat('#c8c4b8');
+  const goldMat = mat('#e7b84b', 0.42, 0.18);
+  const frameMat = mat('#536579', 0.5, 0.25);
+  const redMat = mat('#d65343');
+  const blueMat = mat('#4b9acb');
+  const greenMat = mat('#4e9a55');
+  const creamMat = mat('#f3e5c4');
+  const glassMat = mat('#9bd4ec', 0.25, 0.08);
+
+  const addMesh = (geometry, material, px, py, pz, cast = true) => {
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(px, py, pz);
+    mesh.castShadow = cast;
+    mesh.receiveShadow = true;
+    park.add(mesh);
+    return mesh;
+  };
+
+  addMesh(new THREE.BoxGeometry(9.1, 0.1, 9.1), pavingMat, 0, 0.05, 0, false);
+  addMesh(new THREE.BoxGeometry(0.9, 0.035, 7.8), creamMat, 0, 0.12, 0.2, false);
+  addMesh(new THREE.BoxGeometry(7.8, 0.035, 0.75), creamMat, 0, 0.13, 0.2, false);
+
+  /* Ferris wheel */
+  const wheelX = -1.65;
+  const wheelY = 3.25;
+  const wheelZ = -1.05;
+  addMesh(new THREE.TorusGeometry(2.05, 0.13, 8, 32), goldMat, wheelX, wheelY, wheelZ);
+  addMesh(new THREE.SphereGeometry(0.28, 12, 8), redMat, wheelX, wheelY, wheelZ);
+  for (let i = 0; i < 8; i++) {
+    const spoke = addMesh(new THREE.CylinderGeometry(0.045, 0.045, 3.85, 6), frameMat, wheelX, wheelY, wheelZ);
+    spoke.rotation.z = i * Math.PI / 4;
+    const angle = i * Math.PI / 4;
+    const cabin = addMesh(
+      new THREE.BoxGeometry(0.46, 0.42, 0.38),
+      [redMat, blueMat, greenMat, goldMat][i % 4],
+      wheelX + Math.cos(angle) * 2.05,
+      wheelY + Math.sin(angle) * 2.05,
+      wheelZ
+    );
+    cabin.rotation.z = 0;
+  }
+  const leftLeg = addMesh(new THREE.CylinderGeometry(0.12, 0.17, 3.25, 8), frameMat, wheelX - 0.78, 1.65, wheelZ);
+  leftLeg.rotation.z = -0.46;
+  const rightLeg = addMesh(new THREE.CylinderGeometry(0.12, 0.17, 3.25, 8), frameMat, wheelX + 0.78, 1.65, wheelZ);
+  rightLeg.rotation.z = 0.46;
+  addMesh(new THREE.BoxGeometry(2.7, 0.16, 0.75), frameMat, wheelX, 0.18, wheelZ);
+
+  /* Compact roller-coaster hill and track */
+  const coasterPoints = [
+    new THREE.Vector3(-2.25, 0.38, 2.75),
+    new THREE.Vector3(-1.55, 1.2, 2.75),
+    new THREE.Vector3(-0.75, 1.75, 2.75),
+    new THREE.Vector3(0.1, 0.72, 2.75),
+    new THREE.Vector3(0.95, 1.45, 2.75),
+    new THREE.Vector3(2.1, 0.42, 2.75)
+  ];
+  const coasterCurve = new THREE.CatmullRomCurve3(coasterPoints);
+  addMesh(new THREE.TubeGeometry(coasterCurve, 48, 0.085, 8, false), redMat, 0, 0, 0, true);
+  for (const point of coasterPoints.slice(1, -1)) {
+    const support = addMesh(
+      new THREE.CylinderGeometry(0.055, 0.075, Math.max(0.25, point.y - 0.18), 6),
+      frameMat,
+      point.x,
+      Math.max(0.18, point.y / 2),
+      point.z
+    );
+  }
+  const coasterCar = addMesh(new THREE.BoxGeometry(0.72, 0.36, 0.52), blueMat, 0.35, 1.05, 2.75);
+  coasterCar.rotation.z = -0.18;
+
+  /* Carousel */
+  addMesh(new THREE.CylinderGeometry(1.0, 1.08, 0.22, 16), blueMat, 1.75, 0.27, -1.65);
+  addMesh(new THREE.CylinderGeometry(0.09, 0.12, 1.45, 8), goldMat, 1.75, 1.02, -1.65);
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3;
+    addMesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 1.12, 6),
+      frameMat,
+      1.75 + Math.cos(a) * 0.72,
+      0.88,
+      -1.65 + Math.sin(a) * 0.72
+    );
+  }
+  addMesh(new THREE.ConeGeometry(1.22, 0.72, 12), goldMat, 1.75, 1.92, -1.65);
+
+  /* Entrance kiosk */
+  addMesh(new THREE.BoxGeometry(1.55, 1.15, 1.15), creamMat, -3.25, 0.68, 2.45);
+  addMesh(new THREE.BoxGeometry(1.7, 0.22, 1.3), redMat, -3.25, 1.35, 2.45);
+  addMesh(new THREE.BoxGeometry(0.92, 0.48, 0.08), glassMat, -3.25, 0.82, 3.04);
+  addMesh(new THREE.BoxGeometry(0.35, 0.55, 0.08), frameMat, -2.82, 0.42, 3.06);
+
+  group.add(park);
+}
+
 function disposeObject(o) {
   o.traverse((n) => {
     if (n.geometry) n.geometry.dispose();
@@ -654,6 +757,38 @@ export function createCity(container, { onPick } = {}) {
     const rows = Math.max(BLOCK * 2, maxY + 2);
     const blocksY = blocksFor(rows);
     const Hs = blocksY * BLOCK_W + ROAD;
+
+    /* Reserve one genuinely vacant 2x2 citizen lot for the city landmark. */
+    const parkCandidates = [];
+    const parkBlocksX = COLS / BLOCK;
+    for (let bx = 0; bx < parkBlocksX; bx++) {
+      for (let bz = 0; bz < blocksY; bz++) {
+        for (const ox of [0, 3]) {
+          for (const oz of [0, 3]) {
+            let free = true;
+            for (let dy = 0; dy < 2; dy++) {
+              for (let dx = 0; dx < 2; dx++) {
+                if (occupied.has((bx * BLOCK + ox + dx) + ',' + (bz * BLOCK + oz + dy))) free = false;
+              }
+            }
+            if (!free) continue;
+            const x = ROAD + bx * BLOCK_W + ox * CELL + CELL;
+            const z = ROAD + bz * BLOCK_W + oz * CELL + CELL;
+            const score = Math.pow(x - W / 2, 2) + Math.pow(z - Hs / 2, 2);
+            parkCandidates.push({ x, z, bx, bz, ox, oz, score });
+          }
+        }
+      }
+    }
+    parkCandidates.sort((a, b) => a.score - b.score);
+    const parkLot = parkCandidates[0] || null;
+    if (parkLot) {
+      for (let dy = 0; dy < 2; dy++) {
+        for (let dx = 0; dx < 2; dx++) {
+          occupied.add((parkLot.bx * BLOCK + parkLot.ox + dx) + ',' + (parkLot.bz * BLOCK + parkLot.oz + dy));
+        }
+      }
+    }
     const mm = new THREE.Matrix4();
     const cc = new THREE.Color();
 
@@ -709,6 +844,8 @@ export function createCity(container, { onPick } = {}) {
     }
     lawns.receiveShadow = true;
     g.add(lawns);
+
+    if (parkLot) addAmusementPark(g, parkLot.x, parkLot.z);
 
     /* trees on some empty lots */
     const lotTrees = [];
